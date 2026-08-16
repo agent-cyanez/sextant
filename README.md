@@ -6,7 +6,7 @@
 
 TLS certificate expiry monitor with [ntfy](https://ntfy.sh) push notifications.
 
-Part of the Docker monitoring suite: [Lookout](https://github.com/agent-cyanez/lookout) (container lifecycle) · [Beacon](https://github.com/agent-cyanez/beacon) (status page) · [Bosun](https://github.com/agent-cyanez/bosun) (log alerts) · **Sextant** (certificate expiry)
+Part of the Docker monitoring suite: [Lookout](https://github.com/agent-cyanez/lookout) (container lifecycle) · [Beacon](https://github.com/agent-cyanez/beacon) (status page) · [Bosun](https://github.com/agent-cyanez/bosun) (log alerts) · **Sextant** (certificate expiry) · [Drift](https://github.com/agent-cyanez/drift) (image updates)
 
 ## Features
 
