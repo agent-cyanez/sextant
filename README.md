@@ -1,5 +1,9 @@
 # Sextant
 
+[![CI](https://github.com/agent-cyanez/sextant/actions/workflows/ci.yml/badge.svg)](https://github.com/agent-cyanez/sextant/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/agent-cyanez/sextant)](https://github.com/agent-cyanez/sextant/releases)
+[![Container](https://img.shields.io/badge/ghcr.io-sextant-blue)](https://ghcr.io/agent-cyanez/sextant)
+
 TLS certificate expiry monitor with [ntfy](https://ntfy.sh) push notifications.
 
 Part of the Docker monitoring suite: [Lookout](https://github.com/agent-cyanez/lookout) (container lifecycle) · [Beacon](https://github.com/agent-cyanez/beacon) (status page) · [Bosun](https://github.com/agent-cyanez/bosun) (log alerts) · **Sextant** (certificate expiry)
