@@ -18,6 +18,27 @@ logging.basicConfig(
 )
 log = logging.getLogger("sextant")
 
+# ntfy priority ceiling. Set NTFY_MAX_PRIORITY (e.g. "default") to stop this
+# tool from ever sending high/urgent, so those levels stay reserved for
+# messages a human must see. Empty means no cap.
+_PRIORITY_LEVELS = {"min": 1, "low": 2, "default": 3, "high": 4, "urgent": 5, "max": 5,
+                    "1": 1, "2": 2, "3": 3, "4": 4, "5": 5}
+NTFY_MAX_PRIORITY = os.environ.get("NTFY_MAX_PRIORITY", "").strip().lower()
+if NTFY_MAX_PRIORITY and NTFY_MAX_PRIORITY not in _PRIORITY_LEVELS:
+    raise SystemExit(f"Invalid NTFY_MAX_PRIORITY: {NTFY_MAX_PRIORITY!r}")
+
+
+def cap_priority(priority, cap=None):
+    """Lower priority to the configured ceiling; leave it alone if under it."""
+    cap = NTFY_MAX_PRIORITY if cap is None else cap
+    if not cap:
+        return priority
+    level = _PRIORITY_LEVELS.get(str(priority).strip().lower())
+    if level is None or level <= _PRIORITY_LEVELS[cap]:
+        return priority
+    return cap
+
+
 
 def parse_endpoints(raw):
     """Parse ENDPOINTS env var into list of (host, port) tuples.
@@ -133,7 +154,7 @@ def send_ntfy(url, topic, title, message, priority="default"):
     data = message.encode("utf-8")
     req = urllib.request.Request(ntfy_url, data=data, method="POST")
     req.add_header("Title", title)
-    req.add_header("Priority", priority)
+    req.add_header("Priority", cap_priority(priority))
     try:
         with urllib.request.urlopen(req, timeout=10) as resp:
             return resp.status == 200

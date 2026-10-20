@@ -41,6 +41,7 @@ All configuration via environment variables:
 | `CRIT_DAYS` | `7` | Days before expiry to send critical alert |
 | `NTFY_URL` | `http://127.0.0.1:8888` | ntfy server URL |
 | `NTFY_TOPIC` | `sextant` | ntfy topic for notifications |
+| `NTFY_MAX_PRIORITY` | *(none)* | Ceiling for alert priority (`min`, `low`, `default`, `high`, `urgent`). Set to `default` to keep high/urgent free for messages a human must see |
 | `ALERT_COOLDOWN` | `86400` | Seconds between repeat alerts for the same endpoint |
 
 ## Alert Priorities
