@@ -8,6 +8,7 @@ import socket
 import ssl
 import sys
 import time
+import urllib.parse
 import urllib.request
 from datetime import datetime, timezone
 
@@ -150,10 +151,13 @@ def should_alert(result, warn_days, crit_days):
 
 def send_ntfy(url, topic, title, message, priority="default"):
     """Send a notification via ntfy."""
-    ntfy_url = f"{url.rstrip('/')}/{topic}"
+    # Title goes in the query string, not a header: http.client encodes
+    # headers as latin-1, so a non-ASCII title (e.g. an em dash) made every
+    # send fail before reaching ntfy.
+    query = urllib.parse.urlencode({"title": title})
+    ntfy_url = f"{url.rstrip('/')}/{topic}?{query}"
     data = message.encode("utf-8")
     req = urllib.request.Request(ntfy_url, data=data, method="POST")
-    req.add_header("Title", title)
     req.add_header("Priority", cap_priority(priority))
     try:
         with urllib.request.urlopen(req, timeout=10) as resp:

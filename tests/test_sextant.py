@@ -201,6 +201,49 @@ class TestSendNtfy(unittest.TestCase):
         )
         self.assertFalse(result)
 
+    def test_non_ascii_title_over_real_socket(self):
+        """Regression: the production title has an em dash. With a mocked
+        urlopen this passed while every real send failed on latin-1 header
+        encoding, so this test goes through http.client to a local server."""
+        import threading
+        import urllib.parse
+        from http.server import BaseHTTPRequestHandler, HTTPServer
+
+        received = {}
+
+        class Handler(BaseHTTPRequestHandler):
+            def do_POST(self):
+                length = int(self.headers["Content-Length"])
+                received["path"] = self.path
+                received["body"] = self.rfile.read(length).decode("utf-8")
+                received["priority"] = self.headers["Priority"]
+                self.send_response(200)
+                self.end_headers()
+
+            def log_message(self, *args):
+                pass
+
+        server = HTTPServer(("127.0.0.1", 0), Handler)
+        server.timeout = 5
+        thread = threading.Thread(target=server.handle_request, daemon=True)
+        thread.start()
+        try:
+            result = sextant.send_ntfy(
+                f"http://127.0.0.1:{server.server_port}", "canary",
+                "Sextant — Certificate Alert", "host — connection failed",
+                "urgent",
+            )
+        finally:
+            thread.join(timeout=5)
+            server.server_close()
+
+        self.assertTrue(result)
+        parsed = urllib.parse.urlparse(received["path"])
+        self.assertEqual(parsed.path, "/canary")
+        self.assertEqual(urllib.parse.parse_qs(parsed.query)["title"],
+                         ["Sextant — Certificate Alert"])
+        self.assertEqual(received["body"], "host — connection failed")
+
 
 class TestRunChecks(unittest.TestCase):
     @patch("sextant.send_ntfy", return_value=True)
